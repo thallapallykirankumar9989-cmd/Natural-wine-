@@ -204,7 +204,7 @@
 
     // State
     let isTelugu = true;
-    let isAdminMode = false;
+    let isAdminMode = true;
     let currentLiters = 0;
 
     // Translations Dictionary
@@ -298,7 +298,7 @@
 
     // --- Secret Admin Login ---
     // (వెబ్‌లో లాంగ్ ప్రెస్‌కి బదులు డబుల్ క్లిక్ (Double Tap) వాడాము)
-    let clickCount = 0;
+    let clickCount = 1;
     appTitle.addEventListener('click', () => {
         if(isAdminMode) return; // ఇప్పటికే అడ్మిన్ లో ఉంటే ఏమీ చేయద్దు
         
