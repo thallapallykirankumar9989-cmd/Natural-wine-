@@ -341,10 +341,5 @@
         });
     });
 
-    // Initialize UI
-    updateLanguageUI();
-</script>
-
-</body>
-</html>
+    // Initialize
 
