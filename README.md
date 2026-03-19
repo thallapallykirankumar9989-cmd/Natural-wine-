@@ -1,4 +1,3 @@
-# Natural wine 
 <!DOCTYPE html>
 <html lang="te">
 <head>
@@ -7,8 +6,8 @@
     <title>తాటి కల్లు లైవ్ స్టాక్</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
             display: flex;
@@ -16,31 +15,30 @@
         }
         .app-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             background-color: white;
             min-height: 100vh;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .app-bar {
-            background-color: #388E3C; /* Green */
+            background-color: #388e3c; /* Green theme */
             color: white;
-            padding: 15px 20px;
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .app-bar.admin-mode {
-            background-color: #448AFF; /* Blue for Admin */
+            background-color: #448aff; /* Blue theme for Admin */
         }
         .app-title {
             font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
+            cursor: pointer; /* To indicate it's clickable for secret login */
             user-select: none;
         }
         .lang-btn {
-            background: none;
+            background: transparent;
             border: none;
             color: white;
             font-size: 16px;
@@ -51,16 +49,19 @@
             padding: 30px 20px;
             text-align: center;
         }
+        /* Message Card */
         .admin-msg-card {
-            background-color: #ffe0b2;
+            background-color: #ffcc80;
             padding: 15px;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             display: none; /* Hidden by default */
             text-align: left;
             font-weight: bold;
             color: #e65100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        /* Stock Display */
         .stock-label {
             font-size: 22px;
             font-weight: 500;
@@ -69,21 +70,36 @@
         .stock-value {
             font-size: 60px;
             font-weight: bold;
-            color: #2E7D32;
-            margin: 15px 0 40px 0;
+            color: #2e7d32;
+            margin: 15px 0 50px 0;
         }
-        .wa-btn {
-            background-color: #43A047;
-            color: white;
-            border: none;
+        /* Buttons */
+        .btn {
             width: 100%;
             padding: 15px;
             font-size: 18px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            border: none;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
-        /* Admin Panel Styles */
+        .wa-btn {
+            background-color: #43a047;
+        }
+        .update-btn {
+            background-color: #448aff;
+            margin-top: 20px;
+        }
+        .close-admin-btn {
+            background-color: #d32f2f;
+            margin-top: 15px;
+        }
+        /* Admin Panel */
         .admin-panel {
             display: none; /* Hidden by default */
             text-align: left;
@@ -95,29 +111,15 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
+            color: #333;
         }
         .input-group input {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 6px;
             box-sizing: border-box;
-        }
-        .update-btn {
-            background-color: #448AFF;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .close-admin {
-            margin-top: 15px;
-            background-color: #d32f2f;
         }
     </style>
 </head>
@@ -136,7 +138,9 @@
             <div class="stock-label" id="stockLabel">ప్రస్తుతం ఉన్న తాటి కల్లు:</div>
             <div class="stock-value" id="stockValue">0 లీటర్లు</div>
             
-            <button class="wa-btn" id="waBtn">వాట్సాప్ ద్వారా ఆర్డర్ చేయండి</button>
+            <button class="btn wa-btn" id="waBtn">
+                💬 వాట్సాప్ ద్వారా ఆర్డర్ చేయండి
+            </button>
         </div>
 
         <div class="admin-panel" id="adminPanel">
@@ -144,7 +148,7 @@
             
             <div class="input-group">
                 <label id="kalluInputLabel">తాటి కల్లు (లీటర్లలో)</label>
-                <input type="number" id="kalluInput" placeholder="0">
+                <input type="number" id="kalluInput" placeholder="ఉదా: 50">
             </div>
             
             <div class="input-group">
@@ -152,8 +156,8 @@
                 <input type="text" id="msgInput" placeholder="Message...">
             </div>
             
-            <button class="update-btn" id="updateBtn">అప్‌డేట్ చేయండి</button>
-            <button class="update-btn close-admin" id="closeAdminBtn">క్లోజ్ (Close Admin)</button>
+            <button class="btn update-btn" id="updateBtn">అప్‌డేట్ చేయండి</button>
+            <button class="btn close-admin-btn" id="closeAdminBtn">క్లోజ్ (Close Admin)</button>
         </div>
     </div>
 </div>
@@ -162,7 +166,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // 🔴 ముఖ్య గమనిక: ఇక్కడ మీ Firebase ప్రాజెక్ట్ Config వివరాలు పెట్టాలి
+    // 🔴 ముఖ్య గమనిక: మీ ఫైర్‌బేస్ ప్రాజెక్ట్ సెట్టింగ్స్ ఇక్కడ కాపీ చేసి పేస్ట్ చేయండి
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -178,12 +182,7 @@
     const database = getDatabase(app);
     const shopRef = ref(database, 'shop_data');
 
-    // State Variables
-    let isTelugu = true;
-    let isAdminMode = false;
-    let currentKalluLiters = 0;
-    
-    // DOM Elements
+    // UI Elements
     const appTitle = document.getElementById('appTitle');
     const langBtn = document.getElementById('langBtn');
     const appBar = document.getElementById('appBar');
@@ -203,74 +202,83 @@
     const updateBtn = document.getElementById('updateBtn');
     const closeAdminBtn = document.getElementById('closeAdminBtn');
 
-    // Language Dictionary
-    const texts = {
+    // State
+    let isTelugu = true;
+    let isAdminMode = false;
+    let currentLiters = 0;
+
+    // Translations Dictionary
+    const translations = {
         te: {
-            title: "తాజా స్టాక్",
+            appTitle: "తాజా స్టాక్",
             adminTitle: "అడ్మిన్ డ్యాష్‌బోర్డ్",
-            langText: "English",
+            langBtn: "English",
             stockLabel: "ప్రస్తుతం ఉన్న తాటి కల్లు:",
             liters: "లీటర్లు",
-            waBtn: "వాట్సాప్ ద్వారా ఆర్డర్ చేయండి",
+            waBtn: "💬 వాట్సాప్ ద్వారా ఆర్డర్ చేయండి",
+            waMsg: "హలో, నాకు తాటి కల్లు కావాలి.",
             adminHeader: "స్టాక్ అప్‌డేట్ చేయండి:",
             kalluInputLabel: "తాటి కల్లు (లీటర్లలో)",
             msgInputLabel: "కస్టమర్లకు ప్రకటన (ఉదా: ఫ్రెష్ కల్లు వచ్చింది)",
             updateBtn: "అప్‌డేట్ చేయండి",
-            waMsg: "హలో, నాకు తాటి కల్లు కావాలి.",
-            successAlert: "స్టాక్ అప్‌డేట్ చేయబడింది!"
+            closeBtn: "క్లోజ్ (Close)",
+            successMsg: "స్టాక్ అప్‌డేట్ చేయబడింది!"
         },
         en: {
-            title: "Live Stock",
+            appTitle: "Live Stock",
             adminTitle: "Admin Dashboard",
-            langText: "తెలుగు",
+            langBtn: "తెలుగు",
             stockLabel: "Available Thati Kallu:",
             liters: "Liters",
-            waBtn: "Order via WhatsApp",
+            waBtn: "💬 Order via WhatsApp",
+            waMsg: "Hello, I want Thati Kallu.",
             adminHeader: "Update Stock:",
             kalluInputLabel: "Thati Kallu (in Liters)",
             msgInputLabel: "Announcement (e.g., Fresh Kallu available)",
             updateBtn: "Update",
-            waMsg: "Hello, I want Thati Kallu.",
-            successAlert: "Stock Successfully Updated!"
+            closeBtn: "Close Admin",
+            successMsg: "Stock Successfully Updated!"
         }
     };
 
-    // Update UI text based on language
-    function updateLanguageUI() {
-        const lang = isTelugu ? 'te' : 'en';
-        appTitle.innerText = isAdminMode ? texts[lang].adminTitle : texts[lang].title;
-        langBtn.innerText = texts[lang].langText;
+    // Update UI language
+    function updateUI() {
+        const t = isTelugu ? translations.te : translations.en;
         
-        // Customer UI
-        stockLabel.innerText = texts[lang].stockLabel;
-        stockValue.innerText = `${currentKalluLiters} ${texts[lang].liters}`;
-        waBtn.innerText = texts[lang].waBtn;
+        appTitle.innerText = isAdminMode ? t.adminTitle : t.appTitle;
+        langBtn.innerText = t.langBtn;
         
-        // Admin UI
-        adminHeader.innerText = texts[lang].adminHeader;
-        kalluInputLabel.innerText = texts[lang].kalluInputLabel;
-        msgInputLabel.innerText = texts[lang].msgInputLabel;
-        updateBtn.innerText = texts[lang].updateBtn;
+        // Customer View
+        stockLabel.innerText = t.stockLabel;
+        stockValue.innerText = `${currentLiters} ${t.liters}`;
+        waBtn.innerText = t.waBtn;
+        
+        // Admin View
+        adminHeader.innerText = t.adminHeader;
+        kalluInputLabel.innerText = t.kalluInputLabel;
+        msgInputLabel.innerText = t.msgInputLabel;
+        updateBtn.innerText = t.updateBtn;
+        closeAdminBtn.innerText = t.closeBtn;
     }
 
     // Toggle Language
     langBtn.addEventListener('click', () => {
         isTelugu = !isTelugu;
-        updateLanguageUI();
+        updateUI();
     });
 
-    // --- Firebase Live Data Listener ---
+    // --- Firebase Live Listeners ---
     onValue(shopRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            currentKalluLiters = data.thati_kallu || 0;
+            currentLiters = data.thati_kallu || 0;
             const adminMessage = data.admin_message || "";
             
-            // Update Liters
-            const lang = isTelugu ? 'te' : 'en';
-            stockValue.innerText = `${currentKalluLiters} ${texts[lang].liters}`;
+            // Update Stock
+            const t = isTelugu ? translations.te : translations.en;
+            stockValue.innerText = `${currentLiters} ${t.liters}`;
             
-            // Update Admin Message Card
+            // Show/Hide Message Card
             if (adminMessage.trim() !== "") {
                 adminMsgCard.style.display = "block";
                 adminMsgCard.innerHTML = `📢 ${adminMessage}`;
@@ -280,66 +288,67 @@
         }
     });
 
-    // --- WhatsApp Order Button ---
+    // --- WhatsApp Button Logic ---
     waBtn.addEventListener('click', () => {
-        const adminNumber = "919989471413"; // ఇక్కడ మీ వాట్సాప్ నెంబర్ ఇవ్వండి
-        const lang = isTelugu ? 'te' : 'en';
-        const message = texts[lang].waMsg;
-        const url = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+        const adminNumber = "919989471413"; // 🔴 మీ వాట్సాప్ నెంబర్ ఇక్కడ ఇవ్వండి
+        const t = isTelugu ? translations.te : translations.en;
+        const message = encodeURIComponent(t.waMsg);
+        window.open(`https://wa.me/${adminNumber}?text=${message}`, '_blank');
     });
 
-    // --- Secret Admin Login (Double Click/Tap on Title) ---
-    // ఫ్లట్టర్‌లో లాంగ్ ప్రెస్ వాడాము, వెబ్‌లో డబుల్ క్లిక్ సులువుగా ఉంటుంది
+    // --- Secret Admin Login ---
+    // (వెబ్‌లో లాంగ్ ప్రెస్‌కి బదులు డబుల్ క్లిక్ (Double Tap) వాడాము)
     let clickCount = 0;
     appTitle.addEventListener('click', () => {
+        if(isAdminMode) return; // ఇప్పటికే అడ్మిన్ లో ఉంటే ఏమీ చేయద్దు
+        
         clickCount++;
         if (clickCount === 2) {
-            const password = prompt("Enter Admin Password:");
-            if (password === "1985") {
-                openAdminPanel();
+            const password = prompt("Admin Login - Enter Password:");
+            if (password === "1985") { // 🔴 పాస్‌వర్డ్ ఇక్కడ ఉంది
+                isAdminMode = true;
+                customerDashboard.style.display = "none";
+                adminPanel.style.display = "block";
+                appBar.classList.add("admin-mode");
+                updateUI();
             } else if (password !== null) {
                 alert("Wrong Password!");
             }
-            clickCount = 0; // Reset
+            clickCount = 0;
         }
-        // Reset count after 1 second if not double clicked
-        setTimeout(() => clickCount = 0, 1000); 
+        setTimeout(() => clickCount = 0, 1000); // 1 సెకనులో డబుల్ క్లిక్ చేయాలి
     });
 
-    function openAdminPanel() {
-        isAdminMode = true;
-        customerDashboard.style.display = "none";
-        adminPanel.style.display = "block";
-        appBar.classList.add("admin-mode");
-        updateLanguageUI();
-    }
-
+    // Close Admin
     closeAdminBtn.addEventListener('click', () => {
         isAdminMode = false;
-        customerDashboard.style.display = "block";
         adminPanel.style.display = "none";
+        customerDashboard.style.display = "block";
         appBar.classList.remove("admin-mode");
-        updateLanguageUI();
+        updateUI();
     });
 
     // --- Update Stock to Firebase ---
     updateBtn.addEventListener('click', () => {
-        const newStock = parseInt(kalluInput.value) || 0;
+        const newLiters = parseInt(kalluInput.value) || 0;
         const newMsg = msgInput.value || "";
 
         update(shopRef, {
-            thati_kallu: newStock,
+            thati_kallu: newLiters,
             admin_message: newMsg
         }).then(() => {
-            const lang = isTelugu ? 'te' : 'en';
-            alert(texts[lang].successAlert);
-            kalluInput.value = "";
+            const t = isTelugu ? translations.te : translations.en;
+            alert(t.successMsg);
+            kalluInput.value = ""; // ఇన్‌పుట్స్ క్లియర్ చేయడం
             msgInput.value = "";
         }).catch((error) => {
-            alert("Error updating stock: " + error);
+            alert("Error: " + error);
         });
     });
 
-    // Initialize
+    // Initial Load
+    updateUI();
+</script>
 
+</body>
+</html>
