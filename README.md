@@ -168,13 +168,13 @@
 
     // 🔴 ముఖ్య గమనిక: మీ ఫైర్‌బేస్ ప్రాజెక్ట్ సెట్టింగ్స్ ఇక్కడ కాపీ చేసి పేస్ట్ చేయండి
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
+        authDomain: "natural-wine-d3c21.firebaseapp.com",
+        databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com/",
+        projectId: "natural-wine-d3c21",
+        storageBucket: "natural-wine-d3c21.firebasestorage.app",
+        messagingSenderId: "937219921686",
+        appId: "1:937219921686:web:857e8b62942366ebf02237"
     };
 
     // Initialize Firebase
