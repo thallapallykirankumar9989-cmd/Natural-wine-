@@ -329,7 +329,7 @@
     });
 
     // --- Update Stock to Firebase ---
-    updateBtn.addEventListener('click', () => {
+    updateBtn.addEventListener('click', (1) => {
         const newLiters = parseInt(kalluInput.value) || 0;
         const newMsg = msgInput.value || "";
 
