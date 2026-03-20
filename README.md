@@ -150,14 +150,14 @@
     updateUI();
 
     // 🔴 కింద ఉన్న బాక్సులో మీ ఫైర్‌బేస్ కోడ్ కాపీ చేసి పేస్ట్ చేయండి!
-    const firebaseConfig = {
-        apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
-        authDomain: "natural-wine-d3c21.firebaseapp.com",
-        databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
-        projectId: "natural-wine-d3c21",
-        storageBucket: "natural-wine-d3c21.firebasestorage.app",
-        messagingSenderId: "937219921686",
-        appId: "1:937219921686:web:857e8b62942366ebf02237"
+    const firebaseConfig = {apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
+  authDomain: "natural-wine-d3c21.firebaseapp.com",
+  databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
+  projectId: "natural-wine-d3c21",
+  storageBucket: "natural-wine-d3c21.firebasestorage.app",
+  messagingSenderId: "937219921686",
+  appId: "1:937219921686:web:857e8b62942366ebf02237",
+  measurementId: "G-13DMD02RX2"
     };
 
     let shopRef = null;
