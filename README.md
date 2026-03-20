@@ -1,221 +1,183 @@
-<html>
+<!DOCTYPE html>
+<html lang="te">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>తాటి కల్లు లైవ్ స్టాక్</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <title>Mini Chess Clash</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    
     <style>
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; background-color: white; min-height: 100vh; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .app-bar { background-color: #388e3c; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .app-bar.admin-mode { background-color: #448aff; }
-        .app-title { font-size: 20px; font-weight: bold; cursor: pointer; user-select: none; }
-        .lang-btn { background: transparent; border: none; color: white; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .content { padding: 30px 20px; text-align: center; }
-        .admin-msg-card { background-color: #ffcc80; padding: 15px; border-radius: 8px; margin-bottom: 40px; display: none; text-align: left; font-weight: bold; color: #e65100; }
-        .stock-label { font-size: 22px; font-weight: 500; color: #333; }
-        .stock-value { font-size: 60px; font-weight: bold; color: #2e7d32; margin: 15px 0 50px 0; }
-        .btn { width: 100%; padding: 15px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; color: white; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .wa-btn { background-color: #43a047; }
-        .update-btn { background-color: #448aff; margin-top: 20px; }
-        .close-admin-btn { background-color: #d32f2f; margin-top: 15px; }
-        .admin-panel { display: none; text-align: left; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-        .input-group input { width: 100%; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+        }
+        .app-container {
+            width: 100%; max-width: 480px;
+            background-color: #ffffff; min-height: 100vh;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+        }
+        .app-bar {
+            background-color: #2962ff; /* Blue theme */
+            color: white; padding: 16px 20px;
+            text-align: center; font-size: 22px; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .content {
+            padding: 20px; flex-grow: 1;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .player-profile {
+            background-color: #e3f2fd; color: #0d47a1;
+            padding: 10px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 16px;
+            display: flex; align-items: center; gap: 8px;
+            margin: 15px 0; width: fit-content;
+        }
+        /* చెస్ బోర్డ్ చుట్టూ షాడో మరియు డిజైన్ */
+        #board-container {
+            width: 100%; max-width: 400px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-radius: 4px; border: 4px solid #4e342e;
+            background-color: #4e342e;
+        }
+        #myBoard { width: 100%; }
+        
+        .status-box {
+            margin-top: 20px; padding: 10px; width: 90%;
+            text-align: center; font-size: 18px; font-weight: bold;
+            border-radius: 8px; background-color: #fff3e0; color: #e65100;
+            border: 1px solid #ffb74d;
+        }
+        .buttons-row {
+            display: flex; justify-content: space-around;
+            width: 100%; margin-top: 30px; gap: 15px;
+        }
+        .btn {
+            flex: 1; padding: 12px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 8px; cursor: pointer; color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-undo { background-color: #f57c00; }
+        .btn-reset { background-color: #d32f2f; }
+        .btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="app-bar" id="appBar">
-        <div class="app-title" id="appTitle">తాజా స్టాక్</div>
-        <button class="lang-btn" id="langBtn">English</button>
-    </div>
+    <div class="app-bar">Mini Chess Clash ♟️</div>
 
     <div class="content">
-        <div id="customerDashboard">
-            <div class="admin-msg-card" id="adminMsgCard"></div>
-            <div class="stock-label" id="stockLabel">ప్రస్తుతం ఉన్న తాటి కల్లు:</div>
-            <div class="stock-value" id="stockValue">0 లీటర్లు</div>
-            <button class="btn wa-btn" id="waBtn">💬 వాట్సాప్ ద్వారా ఆర్డర్ చేయండి</button>
+        <div class="player-profile">👤 Player 2 (Black)</div>
+
+        <div id="board-container">
+            <div id="myBoard"></div>
         </div>
 
-        <div class="admin-panel" id="adminPanel">
-            <h3 id="adminHeader">స్టాక్ అప్‌డేట్ చేయండి:</h3>
-            <div class="input-group">
-                <label id="kalluInputLabel">తాటి కల్లు (లీటర్లలో)</label>
-                <input type="number" id="kalluInput" placeholder="ఉదా: 50">
-            </div>
-            <div class="input-group">
-                <label id="msgInputLabel">కస్టమర్లకు ప్రకటన (ఉదా: ఫ్రెష్ కల్లు వచ్చింది)</label>
-                <input type="text" id="msgInput" placeholder="Message...">
-            </div>
-            <button class="btn update-btn" id="updateBtn">అప్‌డేట్ చేయండి</button>
-            <button class="btn close-admin-btn" id="closeAdminBtn">క్లోజ్ (Close Admin)</button>
+        <div class="player-profile">👤 Player 1 (White)</div>
+
+        <div class="status-box" id="status">White to move</div>
+
+        <div class="buttons-row">
+            <button class="btn btn-undo" id="undoBtn">↩️ Undo Move</button>
+            <button class="btn btn-reset" id="resetBtn">🔄 Reset Game</button>
         </div>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
 <script>
-    const appTitle = document.getElementById('appTitle');
-    const langBtn = document.getElementById('langBtn');
-    const appBar = document.getElementById('appBar');
-    const customerDashboard = document.getElementById('customerDashboard');
-    const adminMsgCard = document.getElementById('adminMsgCard');
-    const stockLabel = document.getElementById('stockLabel');
-    const stockValue = document.getElementById('stockValue');
-    const waBtn = document.getElementById('waBtn');
-    const adminPanel = document.getElementById('adminPanel');
-    const adminHeader = document.getElementById('adminHeader');
-    const kalluInputLabel = document.getElementById('kalluInputLabel');
-    const msgInputLabel = document.getElementById('msgInputLabel');
-    const kalluInput = document.getElementById('kalluInput');
-    const msgInput = document.getElementById('msgInput');
-    const updateBtn = document.getElementById('updateBtn');
-    const closeAdminBtn = document.getElementById('closeAdminBtn');
+    var board = null;
+    var game = new Chess();
+    var $status = $('#status');
 
-    let isTelugu = true;
-    let isAdminMode = false;
-    let currentLiters = 0;
-
-    const translations = {
-        te: {
-            appTitle: "తాజా స్టాక్", adminTitle: "అడ్మిన్ డ్యాష్‌బోర్డ్", langBtn: "English",
-            stockLabel: "ప్రస్తుతం ఉన్న తాటి కల్లు:", liters: "లీటర్లు",
-            waBtn: "💬 వాట్సాప్ ద్వారా ఆర్డర్ చేయండి", waMsg: "హలో, నాకు తాటి కల్లు కావాలి.",
-            adminHeader: "స్టాక్ అప్‌డేట్ చేయండి:", kalluInputLabel: "తాటి కల్లు (లీటర్లలో)",
-            msgInputLabel: "కస్టమర్లకు ప్రకటన", updateBtn: "అప్‌డేట్ చేయండి", closeBtn: "క్లోజ్ (Close)"
-        },
-        en: {
-            appTitle: "Live Stock", adminTitle: "Admin Dashboard", langBtn: "తెలుగు",
-            stockLabel: "Available Thati Kallu:", liters: "Liters",
-            waBtn: "💬 Order via WhatsApp", waMsg: "Hello, I want Thati Kallu.",
-            adminHeader: "Update Stock:", kalluInputLabel: "Thati Kallu (in Liters)",
-            msgInputLabel: "Announcement", updateBtn: "Update", closeBtn: "Close Admin"
+    // కాయిన్ లాగుతున్నప్పుడు (Drag Start)
+    function onDragStart (source, piece, position, orientation) {
+        // గేమ్ అయిపోయినా, లేదా వేరేవాళ్ళ టర్న్ అయినా కాయిన్ కదలనివ్వదు
+        if (game.game_over()) return false;
+        if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+            (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+            return false;
         }
-    };
-
-    function updateUI() {
-        const t = isTelugu ? translations.te : translations.en;
-        appTitle.innerText = isAdminMode ? t.adminTitle : t.appTitle;
-        langBtn.innerText = t.langBtn;
-        stockLabel.innerText = t.stockLabel;
-        stockValue.innerText = `${currentLiters} ${t.liters}`;
-        waBtn.innerText = t.waBtn;
-        adminHeader.innerText = t.adminHeader;
-        kalluInputLabel.innerText = t.kalluInputLabel;
-        msgInputLabel.innerText = t.msgInputLabel;
-        updateBtn.innerText = t.updateBtn;
-        closeAdminBtn.innerText = t.closeBtn;
     }
 
-    langBtn.addEventListener('click', () => { isTelugu = !isTelugu; updateUI(); });
-
-    waBtn.addEventListener('click', () => {
-        const adminNumber = "919989471413"; // వాట్సాప్ నెంబర్ మార్చుకోండి
-        const t = isTelugu ? translations.te : translations.en;
-        window.open(`https://wa.me/${adminNumber}?text=${encodeURIComponent(t.waMsg)}`, '_blank');
-    });
-
-    let clickCount = 0;
-    appTitle.addEventListener('click', () => {
-        if(isAdminMode) return;
-        clickCount++;
-        if (clickCount === 2) {
-            if (prompt("Admin Password:") === "1985") {
-                isAdminMode = true;
-                customerDashboard.style.display = "none";
-                adminPanel.style.display = "block";
-                appBar.classList.add("admin-mode");
-                updateUI();
-            } else {
-                alert("Wrong Password!");
-            }
-            clickCount = 0;
-        }
-        setTimeout(() => clickCount = 0, 1000);
-    });
-
-    closeAdminBtn.addEventListener('click', () => {
-        isAdminMode = false;
-        adminPanel.style.display = "none";
-        customerDashboard.style.display = "block";
-        appBar.classList.remove("admin-mode");
-        updateUI();
-    });
-
-    updateUI();
-
-    // 🔴 కింద ఉన్న బాక్సులో మీ ఫైర్‌బేస్ కోడ్ కాపీ చేసి పేస్ట్ చేయండి!
-    const firebaseConfig ={apiKey:"AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
-  authDomain: "natural-wine-d3c21.firebaseapp.com",
-  databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
-  projectId: "natural-wine-d3c21",
-  storageBucket: "natural-wine-d3c21.firebasestorage.app",
-  messagingSenderId: "937219921686",
-  appId: "1:937219921686:web:857e8b62942366ebf02237",
-  measurementId: "G-13DMD02RX2"
-    };
-
-    let shopRef = null;
-
-    try {
-        if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
-            firebase.initializeApp(firebaseConfig);
-            shopRef = firebase.database().ref('shop_data');
-
-            shopRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    currentLiters = data.thati_kallu || 0;
-                    const adminMessage = data.admin_message || "";
-                    const t = isTelugu ? translations.te : translations.en;
-                    stockValue.innerText = `${currentLiters} ${t.liters}`;
-                    
-                    if (adminMessage.trim() !== "") {
-                        adminMsgCard.style.display = "block";
-                        adminMsgCard.innerHTML = `📢 ${adminMessage}`;
-                    } else {
-                        adminMsgCard.style.display = "none";
-                    }
-                }
-            });
-        }
-    } catch(err) {
-        console.error("Firebase Initialization Error:", err);
-    }
-
-    // అప్‌డేట్ బటన్ నొక్కినప్పుడు
-    updateBtn.addEventListener('click', () => {
-        // తప్పు 1: అసలు ఫైర్‌బేస్ కోడ్ పెట్టకపోతే
-        if(firebaseConfig.apiKey === "YOUR_API_KEY") {
-            alert("తప్పు 1: దయచేసి ముందుగా ఫైర్‌బేస్ (Firebase) కోడ్‌ను HTML ఫైల్‌లో పేస్ట్ చేయండి. అప్పుడే ఈ బటన్ పనిచేస్తుంది!");
-            return;
-        }
-
-        // తప్పు 2: కోడ్ పెట్టారు కానీ కనెక్షన్ ఫెయిల్ అయితే
-        if(!shopRef) {
-             alert("తప్పు 2: ఫైర్‌బేస్ కనెక్షన్ ఫెయిల్ అయ్యింది. మీ కోడ్‌లో ఏమైనా అక్షరాలు మిస్ అయ్యాయేమో మళ్ళీ చెక్ చేయండి.");
-             return;
-        }
-
-        const newLiters = parseInt(kalluInput.value) || 0;
-        const newMsg = msgInput.value || "";
-        
-        shopRef.update({
-            thati_kallu: newLiters,
-            admin_message: newMsg
-        }).then(() => {
-            alert(isTelugu ? "స్టాక్ అప్‌డేట్ చేయబడింది!" : "Stock Updated!");
-            kalluInput.value = ""; msgInput.value = "";
-        }).catch(err => {
-            // తప్పు 3: ఫైర్‌బేస్ డేటాబేస్ రూల్స్ 'true' చేయకపోతే
-            alert("తప్పు 3 (ముఖ్యమైనది!): ఫైర్‌బేస్ డేటాబేస్ రూల్స్ 'true' లో ఉన్నాయో లేదో చెక్ చేయండి! \n\nఎర్రర్ వివరాలు: " + err.message);
+    // కాయిన్ వదిలేసినప్పుడు (Drop)
+    function onDrop (source, target) {
+        // మూవ్ రూల్స్ ప్రకారం కరెక్టో కాదో చెక్ చేస్తుంది
+        var move = game.move({
+            from: source,
+            to: target,
+            promotion: 'q' // చివరకి వెళ్తే ఆటోమేటిక్ గా రాణి (Queen) వస్తుంది
         });
+
+        // తప్పు మూవ్ అయితే కాయిన్ వెనక్కి వెళ్లిపోతుంది (snapback)
+        if (move === null) return 'snapback';
+
+        updateStatus();
+    }
+
+    // బోర్డ్ ని అప్‌డేట్ చేయడానికి
+    function onSnapEnd () {
+        board.position(game.fen());
+    }
+
+    // గేమ్ స్టేటస్ (చెక్, చెక్‌మేట్, టర్న్) చూపించడానికి
+    function updateStatus () {
+        var statusHTML = '';
+        var moveColor = 'White';
+        if (game.turn() === 'b') { moveColor = 'Black'; }
+
+        if (game.in_checkmate()) {
+            statusHTML = 'Game over, ' + moveColor + ' is in checkmate! 🏆';
+        } else if (game.in_draw()) {
+            statusHTML = 'Game over, drawn position 🤝';
+        } else {
+            statusHTML = moveColor + ' to move';
+            if (game.in_check()) {
+                statusHTML += ', ' + moveColor + ' is in check! ⚠️';
+            }
+        }
+        $status.html(statusHTML);
+    }
+
+    // చెస్ బోర్డ్ సెట్టింగ్స్
+    var config = {
+        draggable: true, // లాగడానికి పర్మిషన్
+        position: 'start', // స్టార్టింగ్ పొజిషన్
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
+        // కాయిన్స్ ఇమేజెస్ కోసం ఆన్‌లైన్ లింక్ (దీని వల్లే బొమ్మలు కనిపిస్తాయి)
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    };
+
+    // బోర్డ్ ని స్టార్ట్ చేయడం
+    board = Chessboard('myBoard', config);
+    updateStatus();
+
+    // Undo బటన్ నొక్కినప్పుడు
+    $('#undoBtn').on('click', function() {
+        game.undo(); // లాజిక్ వెనక్కి వెళ్తుంది
+        board.position(game.fen()); // బోర్డ్ వెనక్కి మారుతుంది
+        updateStatus();
     });
+
+    // Reset బటన్ నొక్కినప్పుడు
+    $('#resetBtn').on('click', function() {
+        game.reset(); // లాజిక్ రీసెట్
+        board.start(); // కాయిన్స్ మళ్లీ మొదటికి వస్తాయి
+        updateStatus();
+    });
+
+    // స్క్రీన్ సైజు మారితే బోర్డ్ కూడా సెట్ అవ్వడానికి
+    $(window).resize(board.resize);
 </script>
 
 </body>
