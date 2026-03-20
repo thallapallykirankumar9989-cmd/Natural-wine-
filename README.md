@@ -150,7 +150,7 @@
     updateUI();
 
     // 🔴 కింద ఉన్న బాక్సులో మీ ఫైర్‌బేస్ కోడ్ కాపీ చేసి పేస్ట్ చేయండి!
-    const firebaseConfig = {apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
+    const firebaseConfig ={apiKey:"AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
   authDomain: "natural-wine-d3c21.firebaseapp.com",
   databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
   projectId: "natural-wine-d3c21",
@@ -163,7 +163,7 @@
     let shopRef = null;
 
     try {
-        if(firebaseConfig.apiKey !== "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI") {
+        if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
             firebase.initializeApp(firebaseConfig);
             shopRef = firebase.database().ref('shop_data');
 
@@ -191,7 +191,7 @@
     // అప్‌డేట్ బటన్ నొక్కినప్పుడు
     updateBtn.addEventListener('click', () => {
         // తప్పు 1: అసలు ఫైర్‌బేస్ కోడ్ పెట్టకపోతే
-        if(firebaseConfig.apiKey === "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI") {
+        if(firebaseConfig.apiKey === "YOUR_API_KEY") {
             alert("తప్పు 1: దయచేసి ముందుగా ఫైర్‌బేస్ (Firebase) కోడ్‌ను HTML ఫైల్‌లో పేస్ట్ చేయండి. అప్పుడే ఈ బటన్ పనిచేస్తుంది!");
             return;
         }
