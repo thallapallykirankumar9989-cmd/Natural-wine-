@@ -87,7 +87,6 @@
 </div>
 
 <script>
-    // --- ముందుగా బటన్స్ (UI) పనిచేసే కోడ్ ---
     const appTitle = document.getElementById('appTitle');
     const langBtn = document.getElementById('langBtn');
     const appBar = document.getElementById('appBar');
@@ -140,20 +139,14 @@
         closeAdminBtn.innerText = t.closeBtn;
     }
 
-    // Language Toggle Button
-    langBtn.addEventListener('click', () => {
-        isTelugu = !isTelugu;
-        updateUI();
-    });
+    langBtn.addEventListener('click', () => { isTelugu = !isTelugu; updateUI(); });
 
-    // WhatsApp Button
     waBtn.addEventListener('click', () => {
-        const adminNumber = "919989471413"; // ఇక్కడ మీ నెంబర్ మార్చుకోండి
+        const adminNumber = "919989471413"; // వాట్సాప్ నెంబర్ మార్చుకోండి
         const t = isTelugu ? translations.te : translations.en;
         window.open(`https://wa.me/${adminNumber}?text=${encodeURIComponent(t.waMsg)}`, '_blank');
     });
 
-    // Secret Admin Login (Double Click)
     let clickCount = 0;
     appTitle.addEventListener('click', () => {
         if(isAdminMode) return;
@@ -173,7 +166,6 @@
         setTimeout(() => clickCount = 0, 1000);
     });
 
-    // Close Admin Panel
     closeAdminBtn.addEventListener('click', () => {
         isAdminMode = false;
         adminPanel.style.display = "none";
@@ -182,62 +174,64 @@
         updateUI();
     });
 
-    updateUI(); // స్టార్టింగ్ లో UI సెట్ చేయడం
+    updateUI();
 
-    // --- ఫైర్‌బేస్ డేటాబేస్ కోడ్ ---
-    try {
-        // 🔴 కింద ఉన్న బాక్సులో మీ ఫైర్‌బేస్ కోడ్ కాపీ చేసి పేస్ట్ చేయండి
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
-            authDomain: "natural-wine-d3c21.firebaseapp.com",
-            databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
-            projectId: "natural-wine-d3c21",
-            storageBucket: "natural-wine-d3c21.firebasestorage.app",
-            messagingSenderId: "937219921686",
-            appId: "1:937219921686:web:857e8b62942366ebf02237"
-        };
+    // 🔴 కింద ఉన్న బాక్సులో మీ ఫైర్‌బేస్ కోడ్ కాపీ చేసి పేస్ట్ చేయండి!
+    const firebaseConfig = {
+        apiKey: "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI",
+        authDomain: "natural-wine-d3c21.firebaseapp.com",
+        databaseURL: "https://natural-wine-d3c21-default-rtdb.firebaseio.com",
+        projectId: "natural-wine-d3c21",
+        storageBucket: "natural-wine-d3c21.appspot.com",
+        messagingSenderId: "937219921686",
+        appId: "1:937219921686:web:857e8b62942366ebf02237"
+    };
 
-        // మీరు మీ కోడ్ ఇస్తేనే ఫైర్‌బేస్ స్టార్ట్ అవుతుంది
-        if(firebaseConfig.apiKey !== "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI") {
-            firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
-            const shopRef = database.ref('shop_data');
+    let shopRef = null;
 
-            // స్టాక్ తీసుకురావడం (Read)
-            shopRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    currentLiters = data.thati_kallu || 0;
-                    const adminMessage = data.admin_message || "";
-                    const t = isTelugu ? translations.te : translations.en;
-                    stockValue.innerText = `${currentLiters} ${t.liters}`;
-                    
-                    if (adminMessage.trim() !== "") {
-                        adminMsgCard.style.display = "block";
-                        adminMsgCard.innerHTML = `📢 ${adminMessage}`;
-                    } else {
-                        adminMsgCard.style.display = "none";
-                    }
-                }
-            });
+    if(firebaseConfig.apiKey !== "AIzaSyBVXwmaYhzdoC79r4E5ND2Gj8BI0W9dDAI") {
+        firebase.initializeApp(firebaseConfig);
+        shopRef = firebase.database().ref('shop_data');
 
-            // స్టాక్ అప్‌డేట్ చేయడం (Write)
-            updateBtn.addEventListener('click', () => {
-                const newLiters = parseInt(kalluInput.value) || 0;
-                const newMsg = msgInput.value || "";
+        shopRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentLiters = data.thati_kallu || 0;
+                const adminMessage = data.admin_message || "";
+                const t = isTelugu ? translations.te : translations.en;
+                stockValue.innerText = `${currentLiters} ${t.liters}`;
                 
-                shopRef.update({
-                    thati_kallu: newLiters,
-                    admin_message: newMsg
-                }).then(() => {
-                    alert(isTelugu ? "స్టాక్ అప్‌డేట్ చేయబడింది!" : "Stock Updated!");
-                    kalluInput.value = ""; msgInput.value = "";
-                }).catch(err => alert("Error: " + err));
-            });
-        }
-    } catch(e) {
-        console.log("Firebase setup pending...");
+                if (adminMessage.trim() !== "") {
+                    adminMsgCard.style.display = "block";
+                    adminMsgCard.innerHTML = `📢 ${adminMessage}`;
+                } else {
+                    adminMsgCard.style.display = "none";
+                }
+            }
+        });
     }
+
+    // అప్‌డేట్ బటన్ నొక్కినప్పుడు
+    updateBtn.addEventListener('click', () => {
+        // ఫైర్‌బేస్ కోడ్ పెట్టకపోతే ఈ ఎర్రర్ వస్తుంది
+        if(firebaseConfig.apiKey === "YOUR_API_KEY") {
+            alert("దయచేసి ముందుగా ఫైర్‌బేస్ (Firebase) కోడ్‌ను HTML ఫైల్‌లో పేస్ట్ చేయండి. అప్పుడే ఈ బటన్ పనిచేస్తుంది!");
+            return;
+        }
+
+        const newLiters = parseInt(kalluInput.value) || 0;
+        const newMsg = msgInput.value || "";
+        
+        shopRef.update({
+            thati_kallu: newLiters,
+            admin_message: newMsg
+        }).then(() => {
+            alert(isTelugu ? "స్టాక్ అప్‌డేట్ చేయబడింది!" : "Stock Updated!");
+            kalluInput.value = ""; msgInput.value = "";
+        }).catch(err => {
+            alert("ఎర్రర్: ఫైర్‌బేస్ డేటాబేస్ రూల్స్ 'true' లో ఉన్నాయో లేదో చెక్ చేయండి! \n" + err);
+        });
+    });
 </script>
 
 </body>
