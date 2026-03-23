@@ -115,7 +115,7 @@
     langBtn.addEventListener('click', () => { isTelugu = !isTelugu; updateUI(); });
 
     waBtn.addEventListener('click', () => {
-        const adminNumber = "919876543210"; // వాట్సాప్ నెంబర్ మార్చుకోండి
+        const adminNumber = "919989471413"; // వాట్సాప్ నెంబర్ మార్చుకోండి
         const t = isTelugu ? translations.te : translations.en;
         window.open(`https://wa.me/${adminNumber}?text=${encodeURIComponent(t.waMsg)}`, '_blank');
     });
@@ -125,7 +125,7 @@
         if(isAdminMode) return;
         clickCount++;
         if (clickCount === 2) {
-            if (prompt("Admin Password:") === "1234") {
+            if (prompt("Admin Password:") === "1985") {
                 isAdminMode = true;
                 customerDashboard.style.display = "none";
                 adminPanel.style.display = "block";
